@@ -1,0 +1,20 @@
+# Build artifacts
+*.o
+*.out
+*.exe
+example
+double_array_test
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ignored directories
+cut/
