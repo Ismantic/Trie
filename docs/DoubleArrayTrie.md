@@ -1,10 +1,10 @@
-# DoubleArray
+# DoubleArrayTrie 原理详解
 
 ## 1. Introduction
 
 DoubleArrayTrie 是一种高校的字典树 (Trie) 压缩表示方法，通过巧妙的数组布局和状态转移机制，实现了空间高效且访问快速的字符串检索数据结构。本文通过一个C++实现，深入阐述其核心原理和实现细节。
 
-### 1.1 问题
+**1.1 问题**
 
 以存储单词 {"he", "she", "his"} 为例，传统指针字典树结构如下：
 
@@ -28,7 +28,7 @@ $(4) s(5)  e(9)
 - 内存分散，缓存不友好
 - 指针访问增加间接寻址开销
 
-### 1.2 思路
+**1.2 思路**
 
 双数组的本质是把树"平铺"到一维数组中：
 - **state**：存储节点的"基地址"
@@ -57,7 +57,7 @@ array[new_pos].character = ct
 
 由状态转移关系，pos 和 new_pos 的两个节点就能联系起来，就可以设计算法把整个树平铺到数组上。
 
-### 1.3 XOR
+**1.3 XOR**
 
 状态转移用到了 XOR 操作，以下是详细介绍。
 
@@ -86,7 +86,7 @@ a ^ 0 = a
 如果 c = a ^ b，那么 a = c ^ b，b = c ^ a
 ```
 
-### 1.4 举例
+**1.4 举例**
 接下来把通过把前面的例子 {he, his, she} 用数组方式存储做详细阐述。首先再说明下状态转移公式：
 
 ```cpp
@@ -205,7 +205,7 @@ sh节点state: 124 ^ 40 = 84
    - 设置父子互指关系（up字段）
 3. 递归处理每个子节点
 
-### 2.1 数据结构
+**2.1 数据结构**
 
 Node 是数组中的基本单元，注意state和value用了union，这是因为叶子节点用不上state,这样就可以把空间给value用了。还有就是eow，对一个字符串"abc"，其实eow会设置两次，一是会把字符串延长成"abc\0"，二是会对c和\0都设置eow，叶子节点的时候value是有值的，此时会满足character == 0 和 eow == true.
 
@@ -244,9 +244,9 @@ std::vector<bool> uses_;
 uint32_t prev_pos_ = 0;
 ```
 
-### 2.2 构建过程
+**2.2 构建过程**
 
-#### 阶段一：构建传统字典树
+**阶段一：构建传统字典树**
 ```cpp
 void TrieInsert(const std::string& str, int32_t value) {
     TrieNode* current = root_.get();
@@ -262,7 +262,7 @@ void TrieInsert(const std::string& str, int32_t value) {
 }
 ```
 
-#### 阶段二：转换为双数组
+**阶段二：转换为双数组**
 
 核心的状态分配算法：
 
@@ -291,7 +291,7 @@ uint32_t SetupDownNodes(const std::vector<uint8_t>& es, uint32_t pos, TrieNode* 
 }
 ```
 
-#### 阶段三：递归转换
+**阶段三：递归转换**
 
 ```cpp
 void NodeConvert(TrieNode* node, uint32_t pos) {
@@ -327,7 +327,7 @@ void NodeConvert(TrieNode* node, uint32_t pos) {
 
 注意，对 '\0' 的处理，递归处理子节点的时候不会对这个节点做处理，因为其不存在子节点，而 SetupDownNodes 的时候会对 '\0' 创建 value 节点。
 
-#### 具体示例
+**具体示例**
 
 
 以 {"cat", "car"} 为例，展示完整构建过程：
@@ -378,7 +378,7 @@ es = {'t', 'r'}
 't' 节点放在位置 126，'r' 节点放在位置 124
 ```
 
-### 2.3 精准匹配
+**2.3 精准匹配**
 
 ```cpp
 Piece GetPiece(const std::string& str) const {
@@ -451,7 +451,7 @@ Piece GetPiece(const std::string& str) const {
   返回 array_[value_pos].value
 ```
 
-### 2.4 前缀匹配
+**2.4 前缀匹配**
 
 这个函数找出输入字符串中所有作为字典中单词前缀的部分：
 
@@ -513,7 +513,7 @@ i=3, 字符='d':
 返回: [Piece("car", 3, "d"), Piece("card", 4, "")]
 ```
 
-### 2.5 后缀匹配
+**2.5 后缀匹配**
 
 
 这是最复杂的查找模式，找出所有以给定字符串为前缀的单词：
@@ -609,7 +609,7 @@ void CollectDownPieces(uint32_t pos, std::string& cw,
 返回: [Piece("cat"), Piece("car"), Piece("card"), Piece("can")]
 ```
 
-#### 2.6 Index 
+**2.6 Index**
 
 `GetFreeIndex` 是 DoubleArray 实现中最核心的算法，它负责为每个节点的子节点集合分配一个合适的基址（index），确保所有子节点位置不冲突。这个算法的效率直接决定了 DoubleArray 的空间利用率和构建速度。
 
