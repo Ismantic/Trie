@@ -7,6 +7,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <utility>
 
 namespace trie {
 
@@ -55,12 +56,10 @@ public:
     }
     CritbitTrie& operator=(CritbitTrie&& other) noexcept {
         if (this != &other) {
-            this->~CritbitTrie();
-            root_ = other.root_;
-            data_ = std::move(other.data_);
-            is_lock_ = other.is_lock_;
-            other.root_ = nullptr;
-            other.data_.clear();
+            CritbitTrie moved(std::move(other));
+            std::swap(root_, moved.root_);
+            data_.swap(moved.data_);
+            std::swap(is_lock_, moved.is_lock_);
         }
         return *this;
     }

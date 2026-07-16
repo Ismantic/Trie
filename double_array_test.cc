@@ -1,4 +1,5 @@
 #include "double_array.h"
+#include "trie.h"
 
 #include <iostream>
 #include <algorithm>
@@ -151,6 +152,41 @@ void test_overlapping_prefixes() {
     check(rs.size() == 3, "overlap find prefix 'abc' count=3");
 }
 
+void test_edge_cases() {
+    using namespace trie;
+
+    DoubleArray<int> empty_word;
+    empty_word.Build(std::vector<std::string>{""});
+    check(empty_word.GetUnit("").found, "single empty word");
+
+    DoubleArray<int> limited;
+    limited.Build(std::vector<std::string>{"a"});
+    check(limited.PrefixSearch("a", 0).empty(), "prefix max_num=0");
+
+    DoubleArray<int64_t> wide;
+    const int64_t large_value = INT64_C(1) << 40;
+    wide.Build(std::vector<std::string>{"wide"},
+               std::vector<int64_t>{large_value});
+    check(wide.GetUnit("wide").value == large_value, "64-bit custom value");
+
+    DoubleArrayTrie rebuilt;
+    rebuilt.Build({"old"});
+    rebuilt.Build({"new"});
+    check(!rebuilt.IsIn("old") && rebuilt.IsIn("new"), "rebuild clears old data");
+
+    std::string high_byte(1, static_cast<char>(0xff));
+    rebuilt.Build({high_byte});
+    check(rebuilt.GetValues("") == std::vector<std::string>{high_byte},
+          "enumerate byte 0xff");
+
+    CritbitTrie source;
+    source.Insert("source");
+    CritbitTrie target;
+    target.Insert("target");
+    target = std::move(source);
+    check(target.GetValue(0) == "source", "CritbitTrie move assignment");
+}
+
 int main() {
     test_getunit();
     test_getunit_with_values();
@@ -158,6 +194,7 @@ int main() {
     test_find_words_with_prefix();
     test_empty_and_single();
     test_overlapping_prefixes();
+    test_edge_cases();
 
     std::cout << "\nPassed: " << passed << ", Failed: " << failed << std::endl;
     return failed > 0 ? 1 : 0;

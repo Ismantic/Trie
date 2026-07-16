@@ -6,8 +6,8 @@ all: example double_array_test
 example: example.cc trie.cc trie.h
 	$(CXX) $(CXXFLAGS) -o $@ example.cc trie.cc
 
-double_array_test: double_array_test.cc double_array.h
-	$(CXX) $(CXXFLAGS) -o $@ double_array_test.cc
+double_array_test: double_array_test.cc double_array.h trie.cc trie.h
+	$(CXX) $(CXXFLAGS) -o $@ double_array_test.cc trie.cc
 
 test: double_array_test
 	./double_array_test

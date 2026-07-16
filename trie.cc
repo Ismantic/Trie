@@ -393,6 +393,10 @@ int DoubleArrayTrie::GetValidBase(const Node* node) {
 }
 
 void DoubleArrayTrie::Build(const std::vector<std::string>& strs) {
+    base_.assign(1, 0);
+    check_.assign(1, -1);
+    eow_.assign(1, false);
+
     auto root = BuildTrie(strs);
 
     std::queue<std::pair<int, Node*>> que;
@@ -486,7 +490,7 @@ std::vector<std::pair<int, char>> DoubleArrayTrie::Nexts(int state) const {
     if (state >= static_cast<int>(base_.size())) return nexts;
 
     int b = base_[state];
-    for (int code = 1; code < 256; ++code) {
+    for (int code = 1; code <= 256; ++code) {
         int next = b + code;
         if (next < static_cast<int>(check_.size()) && check_[next] == state) {
             nexts.emplace_back(next, Decode(code));

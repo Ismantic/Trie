@@ -12,6 +12,7 @@
 #include <functional>
 #include <iostream>
 #include <iomanip>
+#include <limits>
 
 namespace trie {
 
@@ -101,12 +102,14 @@ public:
 private:
     std::size_t size_;
     std::unique_ptr<ArrayUnit[]> array_;
+    std::vector<T> values_;
 
 public:
     DoubleArray() : size_(0) {}
 
     DoubleArray(DoubleArray&& other) noexcept
-        : size_(other.size_), array_(std::move(other.array_)) {
+        : size_(other.size_), array_(std::move(other.array_)),
+          values_(std::move(other.values_)) {
         other.size_ = 0;
     }
 
@@ -114,6 +117,7 @@ public:
         if (this != &other) {
             size_ = other.size_;
             array_ = std::move(other.array_);
+            values_ = std::move(other.values_);
             other.size_ = 0;
         }
         return *this;
@@ -180,13 +184,13 @@ public:
         ArrayUnit value_node = array_[value_pos];
         if (!value_node.HasValue()) return SearchResult();
 
-        return SearchResult(static_cast<T>(value_node.Value()), n);
+        return SearchResult(ValueAt(value_node), n);
     }
 
     std::vector<SearchResult> PrefixSearch(const std::string& str,
                                            std::size_t max_num = 96) const {
         std::vector<SearchResult> results;
-        if (Empty()) return results;
+        if (Empty() || max_num == 0) return results;
 
         size_t pos = 0;
         const char* s = str.c_str();
@@ -196,7 +200,7 @@ public:
             size_t value_pos = 0 ^ array_[0].Index();
             if (value_pos < size_ && array_[value_pos].HasValue()) {
                 ArrayUnit value_node = array_[value_pos];
-                results.emplace_back(static_cast<T>(value_node.Value()), 0);
+                results.emplace_back(ValueAt(value_node), 0);
                 if (results.size() >= max_num) return results;
             }
         }
@@ -220,7 +224,7 @@ public:
                 size_t value_pos = pos ^ next_unit.Index();
                 if (value_pos < size_ && array_[value_pos].HasValue()) {
                     ArrayUnit value_node = array_[value_pos];
-                    results.emplace_back(static_cast<T>(value_node.Value()), i + 1);
+                    results.emplace_back(ValueAt(value_node), i + 1);
                     if (results.size() >= max_num) break;
                 }
             }
@@ -310,7 +314,7 @@ private:
             size_t value_pos = pos ^ unit.Index();
             if (value_pos < size_ && array_[value_pos].HasValue()) {
                 ArrayUnit value_node = array_[value_pos];
-                T value = static_cast<T>(value_node.Value());
+                T value = ValueAt(value_node);
 
                 if (found_values.find(value) == found_values.end()) {
                     found_values.insert(value);
@@ -345,7 +349,7 @@ private:
         struct TrieNode {
             std::map<uint8_t, std::unique_ptr<TrieNode>> down_nodes;
             bool eow = false;
-            T value = T{};
+            int32_t value_index = 0;
         };
 
         std::vector<ArrayUnit> units_;
@@ -355,10 +359,10 @@ private:
         uint32_t prev_pos_ = 0;
 
     public:
-        void Build(const std::vector<std::string>& strs, const std::vector<T>& values) {
+        void Build(const std::vector<std::string>& strs) {
             if (strs.empty()) return;
 
-            BuildTrie(strs, values);
+            BuildTrie(strs);
             ConvertTrie();
         }
 
@@ -374,16 +378,15 @@ private:
         }
 
     private:
-        void BuildTrie(const std::vector<std::string>& strs,
-                       const std::vector<T>& values) {
+        void BuildTrie(const std::vector<std::string>& strs) {
             root_ = std::make_unique<TrieNode>();
 
             for (std::size_t i = 0; i < strs.size(); ++i) {
-                InsertToTrie(strs[i], values[i]);
+                InsertToTrie(strs[i], static_cast<int32_t>(i));
             }
         }
 
-        void InsertToTrie(const std::string& str, T value) {
+        void InsertToTrie(const std::string& str, int32_t value_index) {
             TrieNode* current = root_.get();
 
             for (char c : str) {
@@ -395,7 +398,7 @@ private:
             }
 
             current->eow = true;
-            current->value = value;
+            current->value_index = value_index;
         }
 
         void ConvertTrie() {
@@ -404,11 +407,10 @@ private:
             uses_.resize(esize, false);
 
             uses_[0] = true;
-            units_[0].SetLabel('\0');
+            // The root is a branch node even when the empty string is a key.
+            units_[0].SetLabel(1);
 
-            if (!root_->down_nodes.empty()) {
-                ConvertNode(root_.get(), 0);
-            }
+            ConvertNode(root_.get(), 0);
 
             TrimArrays();
         }
@@ -455,7 +457,7 @@ private:
 
                 if (e == '\0') {
                     units_[p].SetLabel(e);
-                    units_[p].SetValue(static_cast<int32_t>(node->value));
+                    units_[p].SetValue(node->value_index);
                     units_[p].SetEow(true);
                     units_[p].SetParent(pos);
                     units_[pos].SetEow(true);
@@ -510,9 +512,22 @@ private:
     };
 
     void BuildInternal(const std::vector<std::string>& strs, const std::vector<T>& values) {
+        if (values.size() > static_cast<std::size_t>(std::numeric_limits<int32_t>::max())) {
+            throw DartsException("Too many values");
+        }
         Builder e;
-        e.Build(strs, values);
+        e.Build(strs);
         array_ = e.GetResult(size_);
+        values_ = values;
+    }
+
+    const T& ValueAt(const ArrayUnit& unit) const {
+        const int32_t index = unit.Value();
+        if (index < 0 || static_cast<std::size_t>(index) >= values_.size()) {
+            throw DartsException("Invalid value index: " + std::to_string(index) +
+                                 " for " + std::to_string(values_.size()) + " values");
+        }
+        return values_[static_cast<std::size_t>(index)];
     }
 
     static bool IsSort(const std::vector<std::string>& strs) {
