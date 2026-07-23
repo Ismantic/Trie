@@ -1,6 +1,6 @@
 # Trie
 
-C++ 实现的高效 Trie 数据结构集合，包含三种不同的字典树实现，附详细原理文档。
+C++ 实现的高效 Trie 数据结构集合，包含三种不同的字典树实现。
 
 ## 实现
 
@@ -58,8 +58,10 @@ auto expand = dat.FindWordsWithPrefix("app");      // 扩展搜索
 
 ## 文档
 
-- [CritbitTrie 原理详解](docs/CritbitTrie.md) - Critbit 关键位压缩、节点裂变机制
-- [DoubleArrayTrie 原理详解](docs/DoubleArrayTrie.md) - XOR 状态转移、双数组构建算法
+完整原理讲解统一收录在《底层实现：文本处理》：
+
+- [Double-Array Trie](https://ismantic.github.io/text/doublearray-trie.html)：XOR 状态转移和数组构建。
+- [Critbit Trie](https://ismantic.github.io/text/critbit-trie.html)：关键位压缩和节点裂变。
 
 ## 文件结构
 
@@ -69,7 +71,6 @@ auto expand = dat.FindWordsWithPrefix("app");      // 扩展搜索
 ├── double_array.h         # DoubleArray (XOR) 头文件（header-only）
 ├── example.cc             # 使用示例
 ├── double_array_test.cc   # DoubleArray 测试
-└── docs/                  # 原理文档
 ```
 
 ## License
