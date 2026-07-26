@@ -2,8 +2,8 @@
 *.o
 *.out
 *.exe
-example
-double_array_test
+trie-1-test
+trie-2-test
 
 # IDE
 .vscode/

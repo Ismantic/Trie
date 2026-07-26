@@ -1,4 +1,4 @@
-#include "trie.h"
+#include "trie-1.h"
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -316,6 +316,7 @@ void CritbitTrie::Load(const std::string &filename) {
 }
 
 
+#if 0  // Legacy base/check implementation; not part of the book's Critbit chapter.
 std::unique_ptr<DoubleArrayTrie::Node> DoubleArrayTrie::BuildTrie(
         const std::vector<std::string>& strs) {
     auto root = std::make_unique<Node>();
@@ -522,5 +523,6 @@ std::vector<std::string> DoubleArrayTrie::GetCommonValues(
 
     return rs;
 }
+#endif
 
 } // namespace trie

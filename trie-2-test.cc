@@ -1,5 +1,4 @@
-#include "double_array.h"
-#include "trie.h"
+#include "trie-2.h"
 
 #include <iostream>
 #include <algorithm>
@@ -169,22 +168,11 @@ void test_edge_cases() {
                std::vector<int64_t>{large_value});
     check(wide.GetUnit("wide").value == large_value, "64-bit custom value");
 
-    DoubleArrayTrie rebuilt;
-    rebuilt.Build({"old"});
-    rebuilt.Build({"new"});
-    check(!rebuilt.IsIn("old") && rebuilt.IsIn("new"), "rebuild clears old data");
-
     std::string high_byte(1, static_cast<char>(0xff));
-    rebuilt.Build({high_byte});
-    check(rebuilt.GetValues("") == std::vector<std::string>{high_byte},
-          "enumerate byte 0xff");
+    DoubleArray<int> high_byte_trie;
+    high_byte_trie.Build({high_byte});
+    check(high_byte_trie.GetUnit(high_byte).found, "match byte 0xff");
 
-    CritbitTrie source;
-    source.Insert("source");
-    CritbitTrie target;
-    target.Insert("target");
-    target = std::move(source);
-    check(target.GetValue(0) == "source", "CritbitTrie move assignment");
 }
 
 int main() {

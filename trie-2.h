@@ -1,5 +1,7 @@
 #pragma once
 
+// XOR-based Double-Array Trie described in the second Trie chapter.
+
 #include <stdint.h>
 #include <assert.h>
 

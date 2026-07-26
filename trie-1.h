@@ -1,4 +1,6 @@
-#pragma once 
+#pragma once
+
+// Critbit Trie described in the first Trie chapter.
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -90,49 +92,6 @@ public:
     bool IsLock() const {
         return is_lock_;
     }
-
-};
-
-class DoubleArrayTrie {
-private:
-    int Encode(char c) const {
-        return static_cast<int>(static_cast<uint8_t>(c)) + 1;
-    }
-    char Decode(int c) const {
-        return static_cast<char>(static_cast<uint8_t>(c-1));
-    }
-
-    struct Node {
-        std::vector<std::pair<char, std::unique_ptr<Node>>> value;
-        bool eow; 
-        Node() : eow(false) {}
-    };
-    
-    std::unique_ptr<Node> BuildTrie(const std::vector<std::string>& strs);
-    int GetValidBase(const Node* node);
-
-    std::vector<int> base_;
-    std::vector<int> check_;
-    std::vector<bool> eow_;
-
-    std::vector<std::pair<int, char>> Nexts(int state) const;
-    void Values(int state, std::string& current, 
-                std::vector<std::string>& rs) const;
-
-public:
-    DoubleArrayTrie() {
-        base_.push_back(0);
-        check_.push_back(-1);
-        eow_.push_back(false);
-    }
-
-    void Build(const std::vector<std::string>& strs);
-
-    bool IsIn(const std::string& str) const;
-
-    std::vector<std::string> GetValues(const std::string& str) const;
-    std::vector<std::string> GetCommonValues(const std::string& str) const;
-    
 
 };
 

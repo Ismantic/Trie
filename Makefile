@@ -1,18 +1,19 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
 
-all: example double_array_test
+all: trie-1-test trie-2-test
 
-example: example.cc trie.cc trie.h
-	$(CXX) $(CXXFLAGS) -o $@ example.cc trie.cc
+trie-1-test: trie-1-test.cc trie-1.cc trie-1.h
+	$(CXX) $(CXXFLAGS) -o $@ trie-1-test.cc trie-1.cc
 
-double_array_test: double_array_test.cc double_array.h trie.cc trie.h
-	$(CXX) $(CXXFLAGS) -o $@ double_array_test.cc trie.cc
+trie-2-test: trie-2-test.cc trie-2.h
+	$(CXX) $(CXXFLAGS) -o $@ trie-2-test.cc
 
-test: double_array_test
-	./double_array_test
+test: trie-1-test trie-2-test
+	./trie-1-test
+	./trie-2-test
 
 clean:
-	rm -f example double_array_test *.o
+	rm -f example double_array_test trie-1-test trie-2-test *.o
 
 .PHONY: all test clean
