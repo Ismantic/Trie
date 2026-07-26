@@ -12,7 +12,7 @@ C++ 实现的高效 Trie 数据结构集合，按书中章节顺序组织为三�
 
 基于 XOR 运算的双数组 Trie。利用 XOR 的自反性实现状态转移（`next = pos ^ state ^ char`），支持精确匹配、前缀搜索和扩展搜索。Header-only 模板实现。
 
-### trie-3：PieceTokenizer DoubleArray Trie
+### trie-3：DoubleArray Trie 增强版
 
 `PieceTokenizer` 实际使用的 Double-Array Trie。该实现支持精确匹配、公共前缀搜索、遍历以及数组的保存和加载，并包含完整的 DAWG/Double-Array 构建逻辑。
 
@@ -66,12 +66,13 @@ auto expand = dat.FindWordsWithPrefix("app");      // 扩展搜索
 ## 文件结构
 
 ```
-├── trie-1.h               # CritbitTrie 接口
-├── trie-1.cc              # CritbitTrie 实现
-├── trie-2.h               # DoubleArray Trie（XOR，header-only）
-├── trie-3.h               # PieceTokenizer 使用的 DoubleArray Trie
-├── trie-1-test.cc         # CritbitTrie 测试
-├── trie-2-test.cc         # DoubleArray Trie 测试
+├── src/
+│   ├── trie-1.h           # CritbitTrie 接口
+│   ├── trie-1.cc          # CritbitTrie 实现
+│   ├── trie-1-test.cc      # CritbitTrie 测试
+│   ├── trie-2.h           # DoubleArray Trie（XOR，header-only）
+│   ├── trie-2-test.cc      # DoubleArray Trie 测试
+│   └── trie-3.h           # PieceTokenizer 使用的 DoubleArray Trie
 ```
 
 ## License

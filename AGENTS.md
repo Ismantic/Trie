@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This repository contains three C++ trie implementations. `trie.h` and `trie.cc` define `CritbitTrie` and `DoubleArrayTrie`; `double_array.h` contains the header-only XOR-based `DoubleArray` template. `example.cc` demonstrates the compiled implementations, while `double_array_test.cc` is the automated test program for the header-only implementation. `README.md` links to the canonical conceptual chapters in the Text book; do not duplicate those chapters here. Keep new public APIs in the appropriate header and implementation details in `trie.cc` unless the code must remain templated.
+This repository contains three C++ trie implementations under `src/`. `trie-1.h` and `trie-1.cc` define `CritbitTrie`; `trie-2.h` contains the header-only XOR-based `DoubleArray` described in the Text book; `trie-3.h` contains the Double-Array implementation used by PieceTokenizer. `src/trie-1-test.cc` and `src/trie-2-test.cc` provide automated coverage. `README.md` links to the canonical conceptual chapters in the Text book; do not duplicate those chapters here. Keep new public APIs in the appropriate header and non-template implementation details in the matching `.cc` file.
 
 ## Build, Test, and Development Commands
 
